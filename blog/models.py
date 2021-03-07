@@ -3,13 +3,18 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 
+class PublishedManager(models.Manager):
+    def get_queryset(self):
+        return super(PublishedManager, self).get_queryset().filter(status='published')
+
+
 class Post(models.Model):
     STATUS_CHOISE = (
         ('draft', 'Draft'),
         ('published', 'Published'),
     )
     title = models.CharField(max_length=200)
-    slug = models.SlugField(max_length=250, unique_for_date='publish')  
+    slug = models.SlugField(max_length=250, unique_for_date='publish')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blog_posts')
     body = models.TextField()
     publish = models.DateTimeField(default=timezone.now)

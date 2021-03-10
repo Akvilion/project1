@@ -8,7 +8,7 @@ from .models import Comment
 #     to = forms.EmailField()
 #     comments = forms.CharField(required=False, widget=forms.Textarea)
 
-class CommentForm(forms.Form):
+class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
-        fiels = ('name', 'email', 'body')
+        fields = ('name', 'email', 'body')

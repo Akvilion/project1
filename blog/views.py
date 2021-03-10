@@ -1,8 +1,8 @@
 from django.shortcuts import render, get_object_or_404
-from .models import Post
+from .models import Post, Comment
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic import ListView
-from .forms import EmailPostForm
+from .forms import CommentForm
 
 
 def post_list(request):
@@ -25,7 +25,17 @@ def post_detail(request, year, month, day, post):
                              publish__year=year,
                              publish__month=month,
                              publish__day=day)
-    return render(request, 'blog/post/detail.html', {'post': post})
+    comments = post.comments.filter(active=True)  # список коментів до цього посту
+    new_comment = None
+    if request.method == 'POST':
+        comment_form = CommentForm(data=request.POST)  # отримуємо новий комент
+        if comment_form.is_valid():
+            new_comment = comment_form.save(commit=False)  # створить об'єкт коменту, але без збереження в базу
+            new_comment.post = post  # приєднання Post до Коменту
+            new_comment.save()  # збереження коменту в базу
+    else:
+        comment_form = CommentForm()  # створить інстанс форми, якщо сторінка запрошена через GET
+    return render(request, 'blog/post/detail.html', {'post': post, 'comments': comments, 'new_comment': new_comment, 'comment_form': comment_form})
 
 
 class PostListView(ListView):
